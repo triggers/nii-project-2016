@@ -1,0 +1,42 @@
+# -*- coding: utf-8 -*-
+
+$:.unshift 'lib'
+
+require 'rubygems'
+require 'rake/clean'
+CLOBBER.include("vendor/bundle/**/*", "*.gem")
+
+task :environment do
+  require 'webapi'
+  Webapi::Configurations.load Webapi::Configurations::Webapi, [
+    ENV['CONF_PATH'].to_s,
+    '/etc/tiny-web-example/webapi.conf',
+    File.expand_path('config/webapi.conf', ::WEBAPI_ROOT)
+  ]
+end
+
+def database_up
+  Webapi.run_initializers('sequel')
+  Sequel.extension :migration
+  Sequel::Migrator.apply(Sequel::DATABASES.first,
+                        File.expand_path('config/db/migrations', ::WEBAPI_ROOT),
+                        9999)
+end
+
+def database_down
+  Webapi.run_initializers('sequel')
+  Sequel.extension :migration
+  Sequel::Migrator.apply(Sequel::DATABASES.first,
+                         File.expand_path('config/db/migrations', ::WEBAPI_ROOT),
+                         0)
+end
+
+namespace :db do
+  task :up => [:environment] do
+    database_up
+  end
+
+  task :down => [:environment] do
+    database_down
+  end
+end
