@@ -1,3 +1,1 @@
-#!/bin/bash
-
-bash 2> /dev/null
+../common/provided-script.sh
