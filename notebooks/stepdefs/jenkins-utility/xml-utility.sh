@@ -51,7 +51,6 @@ function xml_load_backup () {
     #   code will add a new line, whether one existed in the original file or not.
     
     mv "$targetfile"  "$targetfile.org"
-    exec <"$targetfile.org"
     
     replacedit=false
     while IFS= read -r ln; do
@@ -87,7 +86,7 @@ function xml_load_backup () {
             cat
             break
         fi
-    done >"$targetfile"
+    done >"$targetfile"   <"$targetfile.org"
     curl -X POST http://localhost:8080/job/$job/config.xml --data-binary "@$targetfile"
 }
 
