@@ -1,0 +1,22 @@
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+set -eux
+set -o pipefail
+
+export PATH=$PATH:/opt/axsh/wakame-vdc/client/mussel/bin
+
+cd ciscripts
+ls -l
+
+ipaddr="$(&lt; /metadata/meta-data/local-ipv4)"
+
+APP_IMAGE_ID="${APP_IMAGE_ID}" \
+ DB_IMAGE_ID="${DB_IMAGE_ID}" \
+    YUM_HOST="${ipaddr}" \
+./web3layers-ci.sh
+
+echo ${ipaddr}</command>
+    </hudson.tasks.Shell>
+  </builders>
