@@ -1,0 +1,1 @@
+../provided-script.sh
