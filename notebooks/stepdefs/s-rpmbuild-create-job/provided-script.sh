@@ -1,1 +1,1 @@
-../provided-script.sh
+../common/provided-script.sh
