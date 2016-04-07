@@ -19,9 +19,11 @@ function xml_save_backup () {
 }
 
 function xml_load_backup () {
-    targetfile="$1"
-    elementname="$2"
-    replacementtext="$3"
+    job="$1"
+    targetfile="$2"
+    elementname="$3"
+    replacementtext="$4"
+
     reportfailed()
     {
         echo "Script failed...exiting. ($*)" 1>&2
@@ -86,6 +88,7 @@ function xml_load_backup () {
             break
         fi
     done >"$targetfile"
+    curl -X POST http://localhost:8080/job/$job/config.xml --data-binary "@$targetfile"
 }
 
 # Compares a string value ($1) to all values in an array ($2)

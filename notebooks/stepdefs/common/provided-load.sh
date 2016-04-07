@@ -17,13 +17,13 @@ function load_config() {
 $element_value
 XML_BLOCK
 )"
-        xml_load_backup "${file}" "${element_name}" "\${value}"
+        xml_load_backup "${job}" "${file}" "${element_name}" "\${value}"
 EOF
 }
 
-echo "Loading provided settings..."
 [[ ${#xpaths} -eq 0 ]] || {
     for xpath in "${xpaths[@]}" ; do
+	echo "Loading path ${xpath}."
         load_config "${xpath##*/}" "$(cat $(dirname $0)/xml-data/${xpath##*/}.data)"
     done
 }
