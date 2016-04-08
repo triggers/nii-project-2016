@@ -1,5 +1,5 @@
 #!/bin/bash
-. /home/centos/notebooks/stepdefs/jenkins-utility/xml-utility.sh
+. ./stepdefs/jenkins-utility/xml-utility.sh
 
 original='\033[0m'
 red='\033[00;31m'

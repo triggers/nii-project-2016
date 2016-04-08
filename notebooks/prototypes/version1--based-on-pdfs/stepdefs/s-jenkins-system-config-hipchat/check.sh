@@ -1,5 +1,5 @@
 #!/bin/bash
-. /home/centos/notebooks/stepdefs/jenkins-utility/functions.sh
+. ./stepdefs/jenkins-utility/functions.sh
 
 SSH="ssh root@10.0.2.100 -i /home/centos/mykeypair"
 XML_FILE="jenkins.plugins.hipchat.HipChatNotifier.xml"

@@ -1,5 +1,5 @@
 #!/bin/bash
-. /home/centos/notebooks/stepdefs/jenkins-utility/functions.sh
+. ./stepdefs/jenkins-utility/functions.sh
 
 JOB=${1:-"sample2"}
 XML_FILE="sample-2.xml"

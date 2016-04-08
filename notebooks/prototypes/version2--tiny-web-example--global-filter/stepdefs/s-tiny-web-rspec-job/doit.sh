@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /home/centos/notebooks/stepdefs/jenkins-utility/functions.sh
+. ./stepdefs/jenkins-utility/functions.sh
 
 # Doit file for job that runs the unti tests used in tiny_web_example
 # Tasks:
