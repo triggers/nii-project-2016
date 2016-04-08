@@ -16,8 +16,20 @@ function check_plugins_exists () {
 }
 
 function check_not_empty () {
-    local job=${1} element=${2}
-    local content=$(grep -oP '(?<=<'${element}'>).*?(?=</'${element}'>)' /var/lib/jenkins/jobs/${job}/config.xml)
+    local job element xml_file
+
+    case "$1" in
+        "system_config")
+            xml_file="${2}"
+            element="${3}"
+            ;;
+        *)
+            job="${1}"
+            element="${2}"
+            xml_file="/var/lib/jenkins/jobs/${job}/config.xml"
+            ;;
+    esac
+    local content=$(grep -oP '(?<=<'${element}'>).*?(?=</'${element}'>)' "${xml_file}")
     [[ ! -z $content ]]
 }
 
