@@ -2,7 +2,6 @@
 
 # set -euox
 
-. $(dirname $0)/stepdata.conf
 . /home/centos/notebooks/stepdefs/jenkins-utility/xml-utility.sh
 
 reboot=false
