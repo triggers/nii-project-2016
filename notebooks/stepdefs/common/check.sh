@@ -53,9 +53,7 @@ function check_find_line_with() {
     return 1
 }
 
-. $(dirname $0)/stepdata.conf
-. $(dirname $0)/exec.sh
+[[ -f $(dirname $0)/stepdata.conf ]] && . $(dirname $0)/stepdata.conf
+[[ $global_mode == "my-script" ]] && . $(dirname $0)/save.sh
+[[ -f $(dirname $0)/exec.sh ]] && . $(dirname $0)/exec.sh
 
-[[ $global_mode == "my-script" ]] && {
-    . $(dirname $0)/save.sh
-}
