@@ -1,15 +1,15 @@
 #!/bin/bash
 
-. /home/centos/notebooks/stepdefs/jenkins-utility/functions.sh
+. ./stepdefs/jenkins-utility/functions.sh
 
-# Doit file for job that runs the unti tests used in tiny_web_example
+# Doit file for job that builds the images used in tiny_web_example
 # Tasks:
 #  Copy xml into instance jenkins is running on.
-#  Create job, tiny_web.rspec using predefined configuration file
+#  Create job, tiny_web.imagebuild using predefined configuration file
 
 ssh="ssh root@10.0.2.100 -i /home/centos/mykeypair"
-job=tiny_web.rspec
-xml_file=tiny_web.rspec.xml
+job=tiny_web.imagebuild
+xml_file=tiny_web.imagebuild.xml
 
 xml_to_vm
 

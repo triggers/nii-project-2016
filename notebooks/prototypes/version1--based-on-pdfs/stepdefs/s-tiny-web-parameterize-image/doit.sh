@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /home/centos/notebooks/stepdefs/jenkins-utility/functions.sh
+. ./stepdefs/jenkins-utility/functions.sh
 
 # Doit file for filling in parameters that are missing in the imagebuild job
 # Tasks:

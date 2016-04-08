@@ -1,5 +1,5 @@
 #!/bin/bash
-. /home/centos/notebooks/stepdefs/jenkins-utility/functions.sh
+. ./stepdefs/jenkins-utility/functions.sh
 
 # Check do it file for pdf 106 setup jenkins unit test.
 # Evaluated Tasks:

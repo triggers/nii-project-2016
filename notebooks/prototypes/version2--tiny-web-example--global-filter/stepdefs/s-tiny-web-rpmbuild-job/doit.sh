@@ -1,15 +1,15 @@
 #!/bin/bash
 
-. /home/centos/notebooks/stepdefs/jenkins-utility/functions.sh
+. ./stepdefs/jenkins-utility/functions.sh
 
-# Doit file for job that runs integration test used in tiny_web_example
+# Doit file for job that builds the rpm used in tiny_web_example
 # Tasks:
 #  Copy xml into instance jenkins is running on.
-#  Create job, tiny_web.integration using predefined configuration file
+#  Create job, tiny_web.rpmbuild using predefined configuration file
 
 ssh="ssh root@10.0.2.100 -i /home/centos/mykeypair"
-job=tiny_web.integration
-xml_file=tiny_web.integration.xml
+job=tiny_web.rpmbuild
+xml_file=tiny_web.rpmbuild.xml
 
 xml_to_vm
 
