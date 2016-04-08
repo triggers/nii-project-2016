@@ -18,6 +18,33 @@ function xml_save_backup () {
     [[ -z ${xml_data} ]] || echo "${xml_data}" > /tmp/"${element_name}".data-student
 }
 
+function xml_replace_case() {
+    # This function uses and sets variables from the calling context.
+    case "$ln" in
+        $pattern1a | $pattern1b | $pattern1c)
+            $replacedit && reportfailed "target element $elementname appeared twice"
+            # just replace this one line
+            printf "%s\n" "$replacementtext"
+            replacedit=true
+            ;;
+        $pattern2a | $pattern2b)
+            $replacedit && reportfailed "target element $elementname appeared twice"
+            # scan until end pattern
+            foundit=false
+            while IFS= read -r ln; do
+                [[ "$ln" == $endpattern1 ]] && foundit=true && break
+            done
+            $foundit || reportfailed "Matching </$elementname>" not found
+            # insert the rest here
+            printf "%s\n" "$replacementtext"
+            replacedit=true
+            ;;
+        *)
+            printf "%s\n" "$ln"
+            ;;
+    esac
+}
+
 function xml_load_backup () {
     job="$1"
     targetfile="$2"
@@ -54,29 +81,7 @@ function xml_load_backup () {
     
     replacedit=false
     while IFS= read -r ln; do
-        case "$ln" in
-            $pattern1a | $pattern1b | $pattern1c)
-                $replacedit && reportfailed "target element $elementname appeared twice"
-                # just replace this one line
-                printf "%s\n" "$replacementtext"
-            replacedit=true
-            ;;
-            $pattern2a | $pattern2b)
-                $replacedit && reportfailed "target element $elementname appeared twice"
-                # scan until end pattern
-                foundit=false
-                while IFS= read -r ln; do
-                    [[ "$ln" == $endpattern1 ]] && foundit=true && break
-                done
-                $foundit || reportfailed "Matching </$elementname>" not found
-                # insert the rest here
-            printf "%s\n" "$replacementtext"
-            replacedit=true
-            ;;
-            *)
-                printf "%s\n" "$ln"
-                ;;
-        esac
+	xml_replace_case
         if $replacedit; then
             # we are using cat here to output the rest of the file, because
             # jenkins is sensitive to whether a newline appears at the end
