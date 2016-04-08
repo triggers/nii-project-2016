@@ -1,5 +1,5 @@
-ssh -qi root@10.0.2.100 <<EOF 2> /dev/null
-if [[ -f "$filename" ]] ; then
+ssh -qi /home/centos/mykeypair root@10.0.2.100 <<EOF 2> /dev/null
+if [[ ! -f "$filename" ]] ; then
 cat <<XML_FILE > "$filename"
 <?xml version='1.0' encoding='UTF-8'?>
 <jenkins.plugins.hipchat.HipChatNotifier_-DescriptorImpl plugin="hipchat@1.0.0">
@@ -12,4 +12,3 @@ cat <<XML_FILE > "$filename"
 XML_FILE
 fi
 EOF
-
