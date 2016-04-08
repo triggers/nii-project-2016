@@ -31,6 +31,7 @@ function xml_insert_case() {
         $pattern1a | $pattern1b)  # a start tag that ends with />  (i.e. no end tag)
             printf "%s\n" "${ln%%/>*}>"  # just the start tag (minus the /)
             printf "%s\n" "$replacementtext"
+            printf "<%s>\n" "$elementname"  # create a new end tag
             printf "%s\n" "${ln#*>}"  # everything after the start tag
             replacedit=true
             ;;
