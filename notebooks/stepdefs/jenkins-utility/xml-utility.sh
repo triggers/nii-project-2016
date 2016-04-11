@@ -18,11 +18,79 @@ function xml_save_backup () {
     [[ -z ${xml_data} ]] || echo "${xml_data}" > /tmp/"${element_name}".data-student
 }
 
+function xml_insert_case() {
+    # Insert the xml starting after the starting tag, which is assumed to exist
+    # This function uses and sets variables from the calling context.
+    case "$ln" in
+        $pattern1c)  # both start and end tags on one line
+            printf "%s" "${ln%%>*}>"  # just the start tag
+            printf "%s\n" "$replacementtext"
+            replacedit=true
+            printf "%s\n" "${ln#*>}"  # everything after the start tag
+            ;;
+        $pattern1a | $pattern1b)  # a start tag that ends with />  (i.e. no end tag)
+            printf "%s\n" "${ln%%/>*}>"  # just the start tag (minus the /)
+            printf "%s\n" "$replacementtext"
+            printf "</%s>\n" "$elementname"  # create a new end tag
+            printf "%s\n" "${ln#*>}"  # everything after the start tag
+            replacedit=true
+            ;;
+        $pattern2a | $pattern2b)  # Two separate tags on different lines
+	    # Maybe this can be handled just like pattern1c.
+	    # Going to copy/paste code above to make the code clearer.
+            printf "%s\n" "${ln%%>*}>"  # just the start tag
+            printf "%s\n" "$replacementtext"
+            replacedit=true
+	    if false; then
+		# disabled this...now anything after the first tag will be dropped
+		printf "%s\n" "${ln#*>}"  # everything after the start tag
+	    fi
+	    # Unlike in the xml_replace_case, there is no need to
+	    # search for the closing tag.  Just sending the rest
+	    # of the file to output should be OK.
+            replacedit=true
+            ;;
+        *)
+            printf "%s\n" "$ln"
+            ;;
+    esac
+}
+
+function xml_replace_case() {
+    # This function uses and sets variables from the calling context.
+    case "$ln" in
+        $pattern1a | $pattern1b | $pattern1c)
+            $replacedit && reportfailed "target element $elementname appeared twice"
+            # just replace this one line
+            printf "%s\n" "$replacementtext"
+            replacedit=true
+            ;;
+        $pattern2a | $pattern2b)
+            $replacedit && reportfailed "target element $elementname appeared twice"
+            # scan until end pattern
+            foundit=false
+            while IFS= read -r ln; do
+                [[ "$ln" == $endpattern1 ]] && foundit=true && break
+            done
+            $foundit || reportfailed "Matching </$elementname>" not found
+            # insert the rest here
+            printf "%s\n" "$replacementtext"
+            replacedit=true
+            ;;
+        *)
+            printf "%s\n" "$ln"
+            ;;
+    esac
+}
+
 function xml_load_backup () {
-    job="$1"
-    targetfile="$2"
-    elementname="$3"
-    replacementtext="$4"
+    doinsert=false
+    [ "$1" = "-insert" ] && { doinsert=true ; shift ; }
+    [ "$1" = "-replace" ] && { doinsert=false ; shift ; }
+
+    targetfile="$1"
+    elementname="$2"
+    replacementtext="$3"
 
     reportfailed()
     {
@@ -54,29 +122,11 @@ function xml_load_backup () {
     
     replacedit=false
     while IFS= read -r ln; do
-        case "$ln" in
-            $pattern1a | $pattern1b | $pattern1c)
-                $replacedit && reportfailed "target element $elementname appeared twice"
-                # just replace this one line
-                printf "%s\n" "$replacementtext"
-            replacedit=true
-            ;;
-            $pattern2a | $pattern2b)
-                $replacedit && reportfailed "target element $elementname appeared twice"
-                # scan until end pattern
-                foundit=false
-                while IFS= read -r ln; do
-                    [[ "$ln" == $endpattern1 ]] && foundit=true && break
-                done
-                $foundit || reportfailed "Matching </$elementname>" not found
-                # insert the rest here
-            printf "%s\n" "$replacementtext"
-            replacedit=true
-            ;;
-            *)
-                printf "%s\n" "$ln"
-                ;;
-        esac
+	if $doinsert; then
+	    xml_insert_case
+	else
+	    xml_replace_case
+	fi
         if $replacedit; then
             # we are using cat here to output the rest of the file, because
             # jenkins is sensitive to whether a newline appears at the end
@@ -87,7 +137,6 @@ function xml_load_backup () {
             break
         fi
     done >"$targetfile"   <"$targetfile.org"
-    curl -X POST http://localhost:8080/job/$job/config.xml --data-binary "@$targetfile"
 }
 
 # Compares a string value ($1) to all values in an array ($2)
