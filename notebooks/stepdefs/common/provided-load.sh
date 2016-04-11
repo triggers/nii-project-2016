@@ -11,6 +11,8 @@ function load_config() {
     local element_name="${1}" element_value="${2}"
     ssh -i /home/centos/mykeypair root@10.0.2.100 <<EOF  2> /dev/null
         $(declare -f xml_load_backup)
+        $(declare -f xml_replace_case)
+        $(declare -f xml_insert_case)
 
         value="\$(cat <<"XML_BLOCK"
 $element_value
