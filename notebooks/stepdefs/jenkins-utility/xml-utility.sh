@@ -23,7 +23,7 @@ function xml_insert_case() {
     # This function uses and sets variables from the calling context.
     case "$ln" in
         $pattern1c)  # both start and end tags on one line
-            printf "%s\n" "${ln%%>*}>"  # just the start tag
+            printf "%s" "${ln%%>*}>"  # just the start tag
             printf "%s\n" "$replacementtext"
             replacedit=true
             printf "%s\n" "${ln#*>}"  # everything after the start tag
@@ -41,7 +41,10 @@ function xml_insert_case() {
             printf "%s\n" "${ln%%>*}>"  # just the start tag
             printf "%s\n" "$replacementtext"
             replacedit=true
-            printf "%s\n" "${ln#*>}"  # everything after the start tag
+	    if false; then
+		# disabled this...now anything after the first tag will be dropped
+		printf "%s\n" "${ln#*>}"  # everything after the start tag
+	    fi
 	    # Unlike in the xml_replace_case, there is no need to
 	    # search for the closing tag.  Just sending the rest
 	    # of the file to output should be OK.
