@@ -31,7 +31,7 @@ function xml_insert_case() {
         $pattern1a | $pattern1b)  # a start tag that ends with />  (i.e. no end tag)
             printf "%s\n" "${ln%%/>*}>"  # just the start tag (minus the /)
             printf "%s\n" "$replacementtext"
-            printf "<%s>\n" "$elementname"  # create a new end tag
+            printf "</%s>\n" "$elementname"  # create a new end tag
             printf "%s\n" "${ln#*>}"  # everything after the start tag
             replacedit=true
             ;;
@@ -82,8 +82,8 @@ function xml_replace_case() {
 
 function xml_load_backup () {
     doinsert=false
-    [ "$1" = "-insert" ] && { doinsert=true ; shift }
-    [ "$1" = "-replace" ] && { doinsert=false ; shift }
+    [ "$1" = "-insert" ] && { doinsert=true ; shift ; }
+    [ "$1" = "-replace" ] && { doinsert=false ; shift ; }
     
     job="$1"
     targetfile="$2"
