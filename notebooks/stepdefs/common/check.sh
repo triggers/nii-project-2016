@@ -6,6 +6,7 @@ red='\033[00;31m'
 green='\033[00;32m'
 check_mark="[${green}\xE2\x9C\x93${original}]"
 cross_mark="[${red}\xE2\x9C\x97${original}]"
+sp="-space-"
 
 function check_plugins_exists () {
     for plugin in $@;  do
@@ -34,9 +35,10 @@ function check_not_empty () {
 }
 
 function check_param_value() {
-    local element="${1}" required_values="${2}" job="${3}"
+    local element="${1}" required_values=( ${2} ) job="${3}"
     local content="$(grep -oP '(?<=<'${element}'>).*?(?=</'${element}'>)' /var/lib/jenkins/jobs/${job}/config.xml)"
-    for value in ${required_values} ; do
+    # Replace the word "-space- with a space, use for cases when required value consists of multiple words"
+    for value in "${required_values[@]//-space-/ }" ; do
         [[ "${content}" != *"${value}"* ]] && {
             return 1
         }
