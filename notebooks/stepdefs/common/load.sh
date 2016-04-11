@@ -5,9 +5,18 @@
 . $(dirname $0)/stepdata.conf
 . /home/centos/notebooks/stepdefs/jenkins-utility/xml-utility.sh
 
+insert_type="replace"
+
 function load_config() {
     local file="/var/lib/jenkins/jobs/${job}/config.xml"
     local element_name="${1}" insert_type="${2}" element_value="${3}"
+    local element_in_document=$(ssh -i /home/centos/mykeypair root@10.0.2.100 "grep ${element} ${file}" 2> /dev/null)
+
+    if [[ $insert_type == "insert" ]] && [[ ! -z "$element_in_document" ]] ; then
+        insert_type="replace"
+        element_name="${element}"
+    fi
+
     ssh -i /home/centos/mykeypair root@10.0.2.100 <<EOF 2> /dev/null
         $(declare -f xml_load_backup)
 
