@@ -19,6 +19,7 @@ EOF
 echo "Saving progress..."
 [[ ${#xpaths} -eq 0 ]] || {
     for xpath in "${xpaths[@]}" ; do
+        [[ ${#insert_to} -eq 0 ]] || { contains_value "${xpath}" "${insert_to[@]}" && xpath="${element}" ; }
         save_config "${xpath}"
     done
 }
