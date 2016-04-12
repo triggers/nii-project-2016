@@ -87,11 +87,10 @@ function xml_load_backup () {
     doinsert=false
     [ "$1" = "-insert" ] && { doinsert=true ; shift ; }
     [ "$1" = "-replace" ] && { doinsert=false ; shift ; }
-    
-    job="$1"
-    targetfile="$2"
-    elementname="$3"
-    replacementtext="$4"
+
+    targetfile="$1"
+    elementname="$2"
+    replacementtext="$3"
 
     reportfailed()
     {
@@ -138,7 +137,6 @@ function xml_load_backup () {
             break
         fi
     done >"$targetfile"   <"$targetfile.org"
-    curl -X POST http://localhost:8080/job/$job/config.xml --data-binary "@$targetfile"
 }
 
 # Compares a string value ($1) to all values in an array ($2)
