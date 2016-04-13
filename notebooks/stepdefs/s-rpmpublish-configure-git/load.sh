@@ -1,1 +1,1 @@
-../jenkins-config/load.sh
+../common/load.sh
