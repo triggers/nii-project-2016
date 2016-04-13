@@ -1,1 +1,1 @@
-../jenkins-config/save.sh
+../common/save.sh
