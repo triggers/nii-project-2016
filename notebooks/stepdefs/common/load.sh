@@ -21,6 +21,8 @@ function load_config() {
     # on the other side of ssh
     sed 's,\\$,BaCkSlash,g'  <<EOF | ssh -i /home/centos/mykeypair root@10.0.2.100 2> /dev/null
         $(declare -f xml_load_backup)
+        $(declare -f xml_replace_case)
+        $(declare -f xml_insert_case)
 
         value="\$(sed 's,BaCkSlash,\\\\,g' <<"XML_BLOCK"
 $element_value
@@ -43,3 +45,5 @@ echo "Loading progress..."
         }
     done
 }
+
+bash
