@@ -19,10 +19,13 @@ process1()
 {
     while IFS= read -r ln; do
 	case "$ln" in
-	    *hidden*:*true*)
+	    *hide_input*:*true* | *hide_output*:*true*) # run runtools hide/show input/output
+		printf "%s\n" "${ln/true/false}"  # hide by renaming to unused value
+		;;
+	    *hidden*:*true*)  # for heading collapse/uncollapse
 		printf "%s\n" "${ln/hidden/hidevalue}"  # hide by renaming to unused value
 		;;
-	    *heading_collapsed*:*true*)
+	    *heading_collapsed*:*true*)  # for heading collapse/uncollapse
 		printf "%s\n" "${ln/heading_collapsed/hidevalue}" # hide by renaming to unused value
 		:
 		;;
