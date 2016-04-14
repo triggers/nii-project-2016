@@ -2,7 +2,11 @@
 
 # If this script is run without any parameters, it will make a copy of
 # each notebook in an ./expanded/ directory, except that all headings
-# will be expanded.  For some types of proof reading this is helpful.
+# will be expanded.  Also un-hides any hidden input or output areas of
+# cells hidden by the runtools extension.
+
+# For some types of proof reading this should be helpful.
+
 
 
 export CODEDIR="$(cd "$(dirname "$0")" && pwd -P)"
