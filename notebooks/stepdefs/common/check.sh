@@ -53,11 +53,12 @@ function check_find_line_with() {
     local passed_check=
     local occurances="${1}" ; shift
     let found=0
-
     while read -r line ; do
         passed_check=true
-        for keyword in $@ ; do
-            [[ ${line} != *"${keyword}"* ]] && { passed_check=false ; break ; }
+        for keyword in "$@" ; do
+	    # TODO: Possibly convert lien to array and have it use contains function
+            # for more accuracy
+            [[ "${line}" != *"${keyword}"* ]] && { passed_check=false ; break ; }
         done
         $passed_check && {
             found=$(( $found+1 ))
