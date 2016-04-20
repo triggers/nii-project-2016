@@ -1,5 +1,7 @@
-ssh -i /home/centos/mykeypair root@10.0.2.100 <<EOF 2> /dev/null
-    [[ -d /var/lib/jenkins/jobs/${job} ]] && echo "This task has been done" || {
-        Job missing
-    }
-EOF
+ssh -i /home/centos/mykeypair root@10.0.2.100 "[[ -d /var/lib/jenkins/jobs/${job} ]]" 2> /dev/null
+
+if [[ $? == 0 ]] ; then
+    echo "This task has been done"
+else
+    echo "Job Missing"
+fi

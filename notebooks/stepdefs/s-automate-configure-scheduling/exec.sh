@@ -1,12 +1,11 @@
+output="$(ssh -i /home/centos/mykeypair root@10.0.2.100 cat ${job_config} 2> /dev/null)"
 
-ssh -i /home/centos/mykeypair root@10.0.2.100 <<EOF 2> /dev/null
-    $(declare -f check_param_value)
+test_passed=false
 
-    # Represent a space so that the check function does not evaluate the token
-    # as multiple tokens
+check_param_value spec "5$sp*$sp*$sp*$sp*" <<< "$output" && test_passed=true
 
-    check_param_value spec "5$sp*$sp*$sp*$sp*" "${job}" && echo "Check [ ok ]" || {
-        echo "Check [ fail ]"
-    }
-
-EOF
+if $test_passed ; then
+    echo "Check [ ok ]"
+else
+    echo "Check [ fail ]"
+fi
