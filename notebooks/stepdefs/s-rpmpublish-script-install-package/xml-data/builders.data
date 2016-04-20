@@ -1,0 +1,24 @@
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+#
+#
+set -e
+set -x
+set -o pipefail
+
+# check
+
+rpm -ql httpd &gt;/dev/null || sudo yum install -y httpd
+
+/etc/init.d/httpd status &gt;/dev/null || sudo /etc/init.d/httpd start
+
+# TASK: Create public directory
+
+# TASK: Publish repo
+
+# TASK: Build repo
+
+</command>
+    </hudson.tasks.Shell>
+  </builders>
