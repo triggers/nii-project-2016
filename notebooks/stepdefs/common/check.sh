@@ -121,6 +121,8 @@ function check_plugins_exists () {
 #     echo "${lines[@]}"
 # }
 
+. /home/centos/notebooks/stepdefs/jenkins-utility/message.conf
+. /home/centos/notebooks/stepdefs/jenkins-utility/check_message.sh
 [[ -f $(dirname $0)/stepdata.conf ]] && . $(dirname $0)/stepdata.conf
 jenkins_dir="/var/lib/jenkins/"
 job_config="${jenkins_dir}/jobs/${job}/config.xml"
