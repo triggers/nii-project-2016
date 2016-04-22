@@ -1,7 +1,11 @@
-ssh -i /home/centos/mykeypair root@10.0.2.100 <<EOF 2> /dev/null
-    $(declare -f check_param_value)
+output="$(ssh -i /home/centos/mykeypair root@10.0.2.100 cat ${job_config} 2> /dev/null)"
 
-    check_param_value childProjects "tiny_web.rpmpublish" "${job}" && echo "Check [ ok ]" || {
-        echo "Check [ fail ]"
-    }
-EOF
+test_passed=false
+
+check_param_value childProjects "tiny_web.rpmpublish" <<< "$output" && test_passed=true
+
+if $test_passed ; then
+    echo "Check [ ok ]"
+else
+    echo "Check [ fail ]"
+fi

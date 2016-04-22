@@ -1,14 +1,19 @@
-ssh -i /home/centos/mykeypair root@10.0.2.100 <<EOF 2> /dev/null
-    $(declare -f check_param_value)
+output="$(ssh -i /home/centos/mykeypair root@10.0.2.100 cat ${job_config} 2> /dev/null)"
 
-    all_types_added=false
-    check_param_value notificationType "SUCCESS STARTED FAILURE" ${job} && {
-         echo "Added notifications: Passed"
-         all_types_added=true
-     } || echo "Check [ fail ]"
+test1_passed=false
+test2_passed=false
 
-    # We need to make sure the jobs are created to pass this test as well.
-    \$all_types_added && ! check_param_value notifyEnabled "false" ${job} && {
-        echo "Enabled notifications: Passed"
-     } || echo "Check [ fail ]"
-EOF
+check_param_value notificationType "SUCCESS STARTED FAILURE" <<< "$output" && test1_passed=true
+$test1_passed && ! check_param_value notifyEnabled "false" "$output" <<< "$output" && test2_passed=true
+
+if $test1_passed ; then 
+    echo "Added notifications: Passed"
+else
+    echo "Check [ fail ]"
+fi
+
+if $test2_passed ; then
+    echo "Enabled notifications: Passed"
+else
+    echo "Check [ fail ]"
+fi

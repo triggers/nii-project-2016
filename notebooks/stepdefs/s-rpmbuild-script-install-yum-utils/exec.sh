@@ -1,4 +1,11 @@
-ssh -qi ../mykeypair root@10.0.2.100 <<EOF
-    $(declare -f check_find_line_with)
-    check_find_line_with ${job} 1 "sudo" "yum" "install" "yum-utils" && echo "Check [ ok ]" || echo "Check [ fail ]"
-EOF
+output="$(ssh -qi ../mykeypair root@10.0.2.100 cat ${job_config} 2> /dev/null)"
+
+test_passed=false
+
+check_find_line_with "sudo" "yum" "install" "yum-utils" <<< "$output" && test_passed=true
+
+if $test_passed ; then
+    echo "Check [ ok ]"
+else
+    echo "Check [ fail ]"
+fi
