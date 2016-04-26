@@ -9,7 +9,7 @@ found_public=false
 # In case the directory is set as a variable get the variable name and
 # make the checks in the cases where the variable might be used in place of
 # the value.
-found_line=$(_get_line_with "=*$repo_dir" <<< "${output}")
+found_line=$(get_line_with "=*$repo_dir" <<< "${output}")
 
 if [[ $found_line == *=$repo_dir* ]] ; then
     # Consider cases where brackets are used during expansion
