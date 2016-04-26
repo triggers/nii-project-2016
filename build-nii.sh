@@ -452,7 +452,6 @@ MMM
 )"
 [[ "$r" != *demo3* ]]
 CCC
-false
 	$skip_step_if_already_done; set -e
 
 	"$DATADIR/vmdir/ssh-to-kvm.sh" <<EOF
