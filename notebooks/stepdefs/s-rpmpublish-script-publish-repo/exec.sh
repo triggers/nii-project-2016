@@ -1,7 +1,7 @@
 output="$(ssh -qi /home/centos/mykeypair root@10.0.2.100 cat ${job_config} 2> /dev/null)"
 
 repo_dir="/var/www/html/pub"
-found_line=$(_get_line_with "=*$repo_dir" <<< "${output}")
+found_line=$(get_line_with "=*$repo_dir" <<< "${output}")
 
 if [[ $found_line == *=$repo_dir* ]] ; then
     # Consider cases where brackets are used during expansion
