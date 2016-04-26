@@ -17,6 +17,8 @@ if [ "$DATADIR" = "" ]; then
 fi
 source "$ORGCODEDIR/simple-defaults-for-bashsteps.source"
 
+[ -f "$DATADIR/centos-6.6.x86_64.openvz.md.raw.tar.gz" ] || reportfailed "Centos machine image w/ extra disk must be at top level"
+
 # avoids errors on first run, but maybe not good to change state
 # outside of a step
 touch "$DATADIR/datadir.conf"
