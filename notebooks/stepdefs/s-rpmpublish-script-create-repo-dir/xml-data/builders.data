@@ -9,10 +9,12 @@ set -o pipefail
 
 # check
 
+# TASK: Install httpd server
 rpm -ql httpd &gt;/dev/null || sudo yum install -y httpd
 
 /etc/init.d/httpd status &gt;/dev/null || sudo /etc/init.d/httpd start
 
+# TASK: Create public directory
 REPO_DIR=/var/www/html/pub
 [ -d ${REPO_DIR} ] || sudo mkdir -p ${REPO_DIR}
 

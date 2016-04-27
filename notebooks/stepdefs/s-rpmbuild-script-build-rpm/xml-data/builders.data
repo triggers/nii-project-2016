@@ -9,6 +9,7 @@ set -o pipefail
 
 # check
 
+# TASK: Install yum utils
 rpm -ql yum-utils &gt;/dev/null || sudo yum install -y yum-utils
 
 # release_id
@@ -21,6 +22,7 @@ echo ${release_id}
 
 # build-rpm
 sudo yum-builddep ./rpmbuild/SPECS/tiny-web-example.spec
+# TASK: Build the rpm
 rpmbuild -bb ./rpmbuild/SPECS/tiny-web-example.spec --define "build_id ${release_id}"</command>
     </hudson.tasks.Shell>
   </builders>
