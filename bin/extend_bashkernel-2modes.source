@@ -90,6 +90,10 @@ echo "Ready."
 echo -n "$PS1"
 
 basedir="$(pwd)"
+
+default_dir="$basedir" # can be set to '' to turn off this feature
+export default_dir
+
 new_job_dir()
 {
     mkdir -p "$basedir/.jobs"
@@ -228,6 +232,7 @@ do-provided-script-logic()
 
 # for testing:
 while sleep 0.2; do
+    [ "$default_dir" != "" ] && cd "$default_dir" 2>/dev/null
     ls -l /proc/$BASHPID/fd >>/tmp/sbash.log
 
     readcell_inline
