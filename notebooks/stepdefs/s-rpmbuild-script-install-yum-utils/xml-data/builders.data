@@ -9,6 +9,7 @@ set -o pipefail
 
 # check
 
+# TASK: Install yum utils
 rpm -ql yum-utils &gt;/dev/null || sudo yum install -y yum-utils
 
 # release_id

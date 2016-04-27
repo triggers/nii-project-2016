@@ -49,8 +49,9 @@ function check_param_value() {
 }
 
 function check_plugins_exists () {
+    plugins="$(ssh -i /home/centos/mykeypair root@10.0.2.100 ls /var/lib/jenkins/plugins/ 2> /dev/null)"
     for plugin in $@;  do
-        if [[ ! -f /var/lib/jenkins/plugins/${plugin}.jpi ]]; then
+        if [[ "$plugins" != *"$plugin"* ]] ; then
             return 1
         fi
     done

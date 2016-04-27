@@ -29,5 +29,5 @@ bundle exec rake db:up
 cp spec/webapi.conf.example spec/webapi.conf
 
 # TASK: Execute unit test
-
+bundle exec rspec ./spec/comment_spec.rb
 </command>
