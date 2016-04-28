@@ -23,10 +23,4 @@ $changed && { check_find_line_with "rsync" "sudo" "-avx" "$repo_dir" <<< "$outpu
     done
 }
 
-! $synched && echo "Repo does not seem to get published correctly"
-    
-if $synched ; then
-    echo "Check [ ok ]"
-else
-    echo "Check [ fail ]"
-fi
+check_message $synched "$rpmpublish_task_publish_repo"

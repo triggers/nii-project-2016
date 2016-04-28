@@ -11,15 +11,5 @@ test2_passed=false
 
 } <<< "${output}"
 
-if $test1_passed ; then
-    echo "Check [ ok ]"
-else
-    echo "Check [ fail ]"
-fi
-
-if $test2_passed ; then
-    echo "Check [ ok ]"
-else
-    echo "Check [ fail ]"
-fi
-
+check_message $test1_passed "$rpmpublish_task_install_httpd_a"
+check_message $test2_passed "$rpmpublish_task_install_httpd_b"
