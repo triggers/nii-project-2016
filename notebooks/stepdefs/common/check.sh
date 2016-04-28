@@ -128,5 +128,5 @@ function check_plugins_exists () {
 jenkins_dir="/var/lib/jenkins/"
 job_config="${jenkins_dir}/jobs/${job}/config.xml"
 
-[[ $global_mode == "my-script" ]] && { [[ -f $(dirname $0)/save.sh ]] && . $(dirname $0)/save.sh ; }
+[[ $global_mode == "my-script" ]] && . $(dirname $0)/save.sh
 [[ -f $(dirname $0)/exec.sh ]] && . $(dirname $0)/exec.sh
