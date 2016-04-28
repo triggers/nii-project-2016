@@ -4,7 +4,14 @@
 # so give a little time for Wakame-vdc state to change by checking
 # ten times, waiting 1 second between each.
 
-for i in $(seq 1 30); do
+if [ "$global_mode" = "my-script" ]; then
+    tries=3
+else
+    # wait longer for provided-script mode so automated builds will work
+    tries=30
+fi
+
+for i in $(seq 1 $tries); do
     ymloutput="$(mussel instance index)"
     (
         # TODO: parse this better!
