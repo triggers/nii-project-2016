@@ -29,9 +29,10 @@ bundle show &gt;/dev/null || bundle install
 cp config/webapi.conf.example config/webapi.conf
 bundle exec rake db:up
 
-# exec unit test
 cp spec/webapi.conf.example spec/webapi.conf
-bundle exec rspec ./spec/comment_spec.rb
+
+# TASK: Execute unit test
+
 </command>
     </hudson.tasks.Shell>
   </builders>
