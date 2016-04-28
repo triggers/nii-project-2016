@@ -1,5 +1,3 @@
-#!/bin/bash
-
 output="$(ssh -qi ../mykeypair root@${INSTANCE_IP} '[[ -f ${HOME}/SPECS/example.spec ]]' 2> /dev/null)"
 
 test_passed=$?

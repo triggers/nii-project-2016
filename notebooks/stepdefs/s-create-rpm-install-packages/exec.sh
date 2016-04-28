@@ -1,5 +1,3 @@
-#!/bin/bash
-
 output="$(ssh -qi ../mykeypair root@${INSTANCE_IP} 'rpm -qa' 2> /dev/null)"
 
 installed_git=false
