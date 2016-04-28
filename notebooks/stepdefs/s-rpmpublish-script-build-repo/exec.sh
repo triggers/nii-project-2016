@@ -24,10 +24,5 @@ $changed && { check_find_line_with "sudo" "createrepo" "." <<< "$output" && crea
     done
 }
 
-! $created && echo "Repo does not seem to get created correctly"
-    
-if $created ; then
-    echo "Check [ ok ]"
-else
-    echo "Check [ fail ]"
-fi
+
+check_message $created "$rpmpublish_task_build_repo"

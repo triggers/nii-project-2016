@@ -4,8 +4,4 @@ test_passed=false
 
 check_find_line_with "rpmbuild" "-bb" "./rpmbuild/SPECS/tiny-web-example.spec" <<< "$output" && test_passed=true
 
-if $test_passed ; then
-    echo "Check [ ok ]"
-else
-    echo "Check [ fail ]"
-fi
+check_message $test_passed "$rpmbuild_task_build_rpm"

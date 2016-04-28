@@ -122,6 +122,8 @@ function check_plugins_exists () {
 #     echo "${lines[@]}"
 # }
 
+INSTANCE_IP=10.0.2.100
+
 . /home/centos/notebooks/stepdefs/jenkins-utility/message.conf
 . /home/centos/notebooks/stepdefs/jenkins-utility/check_message.sh
 [[ -f $(dirname $0)/stepdata.conf ]] && . $(dirname $0)/stepdata.conf

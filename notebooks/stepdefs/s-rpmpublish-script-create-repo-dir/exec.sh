@@ -30,12 +30,6 @@ check_find_line_with "[ -d" "]" "$repo_dir" <<< "$output" && exists_check=true
 check_find_line_with "mkdir" "$repo_dir" <<< "$output" && found_public=true
 
 
-! $created && echo "Repo does not seem to get created"
-! $exists_check && echo "Repo path already exists"
-! $found_public && echo "Repo path seems to be wrong"
-    
-if $created && $exists_check && $found_public ; then
-    echo "Check [ ok ]"
-else
-    echo "Check [ fail ]"
-fi
+check_message $created "$rpmpublish_task_create_repo_dir_a"
+check_message $found_public "$rpmpublish_task_create_repo_dir_b"
+check_message $exists_check "$rpmpublish_task_create_repo_dir_c"

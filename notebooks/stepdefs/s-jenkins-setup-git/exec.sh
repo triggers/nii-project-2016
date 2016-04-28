@@ -4,24 +4,10 @@ test1_passed=false
 test2_passed=false
 test3_passed=false
 
-check_plugins_exists "git" "git-client" && test3_passed=true
-check_not_empty system_config "globalConfigName" <<< "$output" && test1_passed=true
-check_not_empty system_config "globalConfigEmail" <<< "$output" && test2_passed=true
+check_plugins_exists "git" "git-client" && test1_passed=true
+check_not_empty system_config "globalConfigName" <<< "$output" && test2_passed=true
+check_not_empty system_config "globalConfigEmail" <<< "$output" && test3_passed=true
 
-if $test3_passed ; then
-    echo "Plugin Installed: Passed"
-else
-    echo "Plugin Installed: Failed"
-fi
-
-if $test1_passed ; then
-    echo "User: Passed"
-else
-    echo "Check [ failed ]"
-fi
-
-if $test2_passed ; then
-    echo "Email: Passed"
-else
-    echo "Check [ fail ]"
-fi  
+check_message $test1_passed "$plugin_installed_status"
+check_message $test2_passed "$git_user_status"
+check_message $test3_passed "$git_mail_status"
