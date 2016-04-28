@@ -4,4 +4,4 @@ test_passed=false
 
 check_find_line_with "bundle" "exec" "rspec" "./spec/comment_spec.rb"  <<< "$output" && test_passed=true
 
-check_messages $test_passed "$rspec_task_execute_unit_test"
+check_message $test_passed "$rspec_task_execute_unit_test"

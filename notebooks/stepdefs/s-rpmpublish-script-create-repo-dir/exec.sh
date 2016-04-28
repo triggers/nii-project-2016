@@ -30,6 +30,6 @@ check_find_line_with "[ -d" "]" "$repo_dir" <<< "$output" && exists_check=true
 check_find_line_with "mkdir" "$repo_dir" <<< "$output" && found_public=true
 
 
-check_message $created "$rpmpublish_create_repo_dir_a"
-check_message $found_public "$rpmpublish_create_repo_dir_b"
-check_message $exists_check "$rpmpublish_create_repo_dir_c"
+check_message $created "$rpmpublish_task_create_repo_dir_a"
+check_message $found_public "$rpmpublish_task_create_repo_dir_b"
+check_message $exists_check "$rpmpublish_task_create_repo_dir_c"
