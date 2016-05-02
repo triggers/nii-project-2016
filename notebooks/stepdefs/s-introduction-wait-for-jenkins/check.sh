@@ -1,12 +1,14 @@
 #!/bin/bash
 
+source /home/centos/notebooks/stepdefs/jenkins-utility/message.conf
+source /home/centos/notebooks/stepdefs/jenkins-utility/check_message.sh
+
 : ${IP:=10.0.2.100}
 
-ssh -qi /home/centos/mykeypair root@${IP} <<'EOS' 2> /dev/null
+output="$(ssh -qi /home/centos/mykeypair root@${IP} 'curl -I -s http://localhost:8080/')"
 
-if curl -I -s http://localhost:8080/ | grep -q "200 OK" ; then
-    echo "TASK COMPLETED"
-else
-    echo "THIS TASK HAS NOT BEEN DONE"
-fi
-EOS
+test_passed=fail
+
+[[ -z $(grep -q "200 OK" <<< "$output") ]] || test_passed=true
+
+check_message $test_passed "Jenkins running"

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+source /home/centos/notebooks/stepdefs/jenkins-utility/message.conf
+source /home/centos/notebooks/stepdefs/jenkins-utility/check_message.sh
+
 out="$(ssh -qi ../mykeypair root@10.0.2.100 'rpm -qa' 2>&1)"
 
 packages=(
@@ -12,17 +15,7 @@ packages=(
     gcc
 )
 
-ok=true
 for p in "${packages[@]}"; do
-    echo "$out" | grep ^"$p" || {
-	echo "The package for $p was not installed"
-	ok=false
-	break
-    }
+    grep -q ^"$p" <<< "$out" 
+    check_message "$?" "Installed $p"
 done
-
-if $ok; then
-    echo "TASK COMPLETED"
-else
-    echo "THIS TASK HAS NOT BEEN DONE"
-fi
