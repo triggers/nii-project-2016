@@ -4,4 +4,4 @@ test_passed=false
 
 check_find_line_with "mysqladmin" "create" "tiny_web_example" <<< "$output" && test_passed=true
 
-check_message $test_passed "$rspec_task_prepare_database"
+check_message $test_passed "Database gets prepared"

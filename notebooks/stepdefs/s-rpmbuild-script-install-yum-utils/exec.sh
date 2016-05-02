@@ -4,4 +4,4 @@ test_passed=false
 
 check_find_line_with "sudo" "yum" "install" "yum-utils" <<< "$output" && test_passed=true
 
-check_message $test_passed "$rpmbuild_task_install_package"
+check_message $test_passed "Yum utils gets installed"
