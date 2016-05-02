@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /home/centos/notebooks/stepdefs/jenkins-utility/message.conf
+source /home/centos/notebooks/stepdefs/jenkins-utility/check_message.sh
 
 (
     fail()
@@ -20,8 +22,4 @@
     [[ "$inuse" == *$IP* ]] || fail "The address $IP is not currently used by any instancees"
 )
 
-if [ "$?" = "0" ]; then
-    echo "TASK COMPLETED"
-else
-    echo "THIS TASK HAS NOT BEEN DONE"
-fi
+check_message "$?" "Ip address saved"

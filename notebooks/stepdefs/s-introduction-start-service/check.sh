@@ -1,10 +1,11 @@
 #!/bin/bash
 
+source /home/centos/notebooks/stepdefs/jenkins-utility/message.conf
+source /home/centos/notebooks/stepdefs/jenkins-utility/check_message.sh
+
 out="$(ssh -qi ../mykeypair root@10.0.2.100 'service jenkins status' 2>&1)"
 echo "$out"
 
-if [[ "$out" == *jenkins*running* ]]; then
-    echo "TASK COMPLETED"
-else
-    echo "THIS TASK HAS NOT BEEN DONE"
-fi
+[[ "$out" == *jenkins*running* ]]
+test_passed="$?"
+check_message $test_passed "Jenkins running"

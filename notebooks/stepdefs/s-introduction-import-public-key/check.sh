@@ -1,5 +1,8 @@
 #!/bin/bash
 
+source /home/centos/notebooks/stepdefs/jenkins-utility/message.conf
+source /home/centos/notebooks/stepdefs/jenkins-utility/check_message.sh
+
 KEYFILE=/tmp/jenkins-ci.org.key
 [ -f $KEYFILE ] || \
     wget http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key \
@@ -10,8 +13,4 @@ KEYID=$(echo $(gpg --throw-keyids < $KEYFILE)|cut -c11-18|tr [A-Z] [a-z])
 rpm -q gpg-pubkey-\$KEYID
 EOF
 
-if [ "$?" = "0" ]; then
-    echo "TASK COMPLETED"
-else
-    echo "THIS TASK HAS NOT BEEN DONE"
-fi
+check_message "$?" "Public key imported"

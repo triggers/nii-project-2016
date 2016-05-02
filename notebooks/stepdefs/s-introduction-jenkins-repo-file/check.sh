@@ -1,10 +1,9 @@
 #!/bin/bash
 
+source /home/centos/notebooks/stepdefs/jenkins-utility/message.conf
+source /home/centos/notebooks/stepdefs/jenkins-utility/check_message.sh
+
 : ${IP:=10.0.2.100}
 ssh -qi ../mykeypair root@$IP '[ -f /etc/yum.repos.d/jenkins.repo ]'
 
-if [ "$?" = "0" ]; then
-    echo "TASK COMPLETED"
-else
-    echo "THIS TASK HAS NOT BEEN DONE"
-fi
+check_message "$?" "Downloaded jenkins repo"

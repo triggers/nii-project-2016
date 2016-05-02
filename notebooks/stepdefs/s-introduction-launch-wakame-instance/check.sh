@@ -1,5 +1,8 @@
 #!/bin/bash
 
+source /home/centos/notebooks/stepdefs/jenkins-utility/message.conf
+source /home/centos/notebooks/stepdefs/jenkins-utility/check_message.sh
+
 # in the Jupyter notebook, this is run right after doing mussel create
 # so give a little time for Wakame-vdc state to change by checking
 # ten times, waiting 1 second between each.
@@ -35,8 +38,4 @@ for i in $(seq 1 $tries); do
     sleep 1
 done
 
-if [ "$rc" = "0" ]; then
-    echo "TASK COMPLETED"
-else
-    echo "THIS TASK HAS NOT BEEN DONE"
-fi
+check_message "$rc" "Wakame running"
