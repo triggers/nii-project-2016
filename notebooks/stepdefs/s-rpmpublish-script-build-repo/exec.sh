@@ -25,4 +25,4 @@ $changed && { check_find_line_with "sudo" "createrepo" "." <<< "$output" && crea
 }
 
 
-check_message $created "$rpmpublish_task_build_repo"
+check_message $created "Repository gets created at /var/www/html/pub"

@@ -11,5 +11,5 @@ test2_passed=false
 
 } <<< "${output}"
 
-check_message $test1_passed "$rpmpublish_task_install_httpd_a"
-check_message $test2_passed "$rpmpublish_task_install_httpd_b"
+check_message $test1_passed "httpd gets installed"
+check_message $test2_passed "httpd service gets started"
