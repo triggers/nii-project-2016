@@ -9,6 +9,6 @@ output="$(ssh -qi /home/centos/mykeypair root@${IP} 'curl -I -s http://localhost
 
 test_passed=fail
 
-[[ -z $(grep -q "200 OK" <<< "$output") ]] || test_passed=true
+grep -q "200 OK" <<< "$output" && test_passed=true
 
 check_message $test_passed "Jenkins running"
