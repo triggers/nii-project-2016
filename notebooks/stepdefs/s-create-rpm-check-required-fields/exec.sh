@@ -6,7 +6,7 @@
     # First, filter down the jobs to only look at ones that
     # have expected output from rpmlint in the output
     # with -l, grep will output lines like: "j-1042/output"
-    jobs="$(grep -l "specfiles checked" */output | cut -d / -f 1)"
+    jobs="$(grep -l "1 specfiles checked" */output | cut -d / -f 1)"
 
     # Next, check each jobs and eliminate those that are for other
     # tasks.  Unfortunately, the my-script cells do not give enough
@@ -27,7 +27,7 @@
     done)"
 
     [ "$diditjobs" != "" ]
-    check_message $? "Check for RPM file was performed"
+    check_message $? "Check using rpmlint was performed"
 )
 
 # Note: a current limitation of this check is that once a matching job
