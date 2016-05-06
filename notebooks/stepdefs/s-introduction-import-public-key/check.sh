@@ -18,4 +18,5 @@ EOF
 
 # The above used to give excess output, but not I cannot duplicate the problem.
 
+[ "$?" = "0" ]
 check_message "$?" "Public key imported"
