@@ -1,16 +1,12 @@
-output="$(ssh -qi /home/centos/mykeypair root@${INSTANCE_IP} '[[ -f /root/rpmbuild/RPMS/x86_64/example-0.1.0-1.el6.x86_64.rpm ]]' 2> /dev/null)"
-
-test_passed=$?
-check_message $test_passed "RPM file exists"
 
 (
     cd .jobs
     taskpat='# Task: *'
 
     # First, filter down the jobs to only look at ones that
-    # have the file name that needs confirming in the output
+    # have expected output from rpmlint in the output
     # with -l, grep will output lines like: "j-1042/output"
-    jobs="$(grep -l "example-0.1.0-1.el6.x86_64.rpm" */output | cut -d / -f 1)"
+    jobs="$(grep -l "specfiles checked" */output | cut -d / -f 1)"
 
     # Next, check each jobs and eliminate those that are for other
     # tasks.  Unfortunately, the my-script cells do not give enough
@@ -19,15 +15,15 @@ check_message $test_passed "RPM file exists"
         for j in $jobs; do
             input="$(cat "$j/input")"
             [[ "$input" == $taskpat ]] && \
-                [[ "$input" != *yum-host-confirm-rpm* ]] && continue
+                [[ "$input" != *create-rpm-check-required-fields* ]] && continue
             echo "$j"
     done)"
 
-    # Finally, check that the input contains "ls"
+    # Finally, check that the input contains "rpmlint"
     diditjobs="$(
         for j in $taskjobs; do
             input="$(cat "$j/input")"
-            [[ "$input" == *ls* ]] && echo "$j"
+            [[ "$input" == *rpmlint* ]] && echo "$j"
     done)"
 
     [ "$diditjobs" != "" ]
