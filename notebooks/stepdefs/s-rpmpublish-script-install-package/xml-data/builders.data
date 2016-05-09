@@ -9,7 +9,7 @@ set -o pipefail
 
 # check
 
-# TASK: Install httpd server
+# TASK: Install and start httpd server
 rpm -ql httpd &gt;/dev/null || sudo yum install -y httpd
 
 /etc/init.d/httpd status &gt;/dev/null || sudo /etc/init.d/httpd start
