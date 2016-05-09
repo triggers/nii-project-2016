@@ -22,4 +22,4 @@ source /home/centos/notebooks/stepdefs/jenkins-utility/check_message.sh
     [[ "$inuse" == *$IP* ]] || fail "The address $IP is not currently used by any instancees"
 )
 
-check_message "$?" "Ip address saved"
+check_message "$?" "IP address saved"
