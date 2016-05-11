@@ -41,3 +41,5 @@ function check_message() {
             pretty_message $output_mode_fail failed "${task}" ;;
     esac
 }
+
+echo "先頭が「[ ]」で始まる項目がすべて緑のチェックマークになったら、次の演習に進めます。"
