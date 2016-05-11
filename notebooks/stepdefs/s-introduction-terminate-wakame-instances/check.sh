@@ -1,7 +1,9 @@
 #!/bin/bash
 
-if check-wakame.sh; then
-    echo "TASK COMPLETED"
-else
-    echo "THIS TASK HAS NOT BEEN DONE"
-fi
+. /home/centos/notebooks/stepdefs/jenkins-utility/message.conf
+. /home/centos/notebooks/stepdefs/jenkins-utility/check_message.sh 
+
+check-wakame.sh
+
+test_passed=$?
+check_message $test_passed "Instance terminated"
