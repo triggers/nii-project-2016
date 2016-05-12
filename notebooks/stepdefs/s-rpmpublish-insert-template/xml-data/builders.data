@@ -1,0 +1,22 @@
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+#
+#
+set -e
+set -x
+set -o pipefail
+
+# check
+
+# TASK: Install httpd server
+
+# TASK: Create public directory
+
+# TASK: Publish repo
+
+# TASK: Build repo
+
+</command>
+    </hudson.tasks.Shell>
+  </builders>

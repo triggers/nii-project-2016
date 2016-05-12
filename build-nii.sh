@@ -17,6 +17,8 @@ if [ "$DATADIR" = "" ]; then
 fi
 source "$ORGCODEDIR/simple-defaults-for-bashsteps.source"
 
+[ -f "$DATADIR/centos-6.6.x86_64.openvz.md.raw.tar.gz" ] || reportfailed "Centos machine image w/ extra disk must be at top level"
+
 # avoids errors on first run, but maybe not good to change state
 # outside of a step
 touch "$DATADIR/datadir.conf"
@@ -38,7 +40,7 @@ DATADIR="$DATADIR" "$ORGCODEDIR/ind-steps/build-1box/build-1box.sh"
 	    $skip_step_if_already_done ; set -e
 	    mkdir "$DATADIR/vmdir"
 	    # increase default mem to give room for a wakame instance or two
-	    echo ': ${KVMMEM:=2048}' >>"$DATADIR/vmdir/datadir.conf"
+	    echo ': ${KVMMEM:=4096}' >>"$DATADIR/vmdir/datadir.conf"
 	) ; prev_cmd_failed
 
 	DATADIR="$DATADIR/vmdir" \
@@ -64,7 +66,8 @@ DATADIR="$DATADIR" "$ORGCODEDIR/ind-steps/build-1box/build-1box.sh"
 	    $skip_step_if_already_done ; set -e
 
 	    "$DATADIR/vmdir/ssh-to-kvm.sh" <<'EOF'
-wget https://3230d63b5fc54e62148e-c95ac804525aac4b6dba79b00b39d1d3.ssl.cf1.rackcdn.com/Anaconda3-2.4.1-Linux-x86_64.sh
+wget  --progress=dot:mega \
+   https://3230d63b5fc54e62148e-c95ac804525aac4b6dba79b00b39d1d3.ssl.cf1.rackcdn.com/Anaconda3-2.4.1-Linux-x86_64.sh
 
 chmod +x Anaconda3-2.4.1-Linux-x86_64.sh
 
@@ -81,6 +84,7 @@ EOF
 	(
 	    $starting_step "Install bash_kernel"
 	    [ -x "$DATADIR/vmdir/ssh-to-kvm.sh" ] && {
+		## TODO: the next -f test is probably covered by the group
 		[ -f "$DATADIR/vmdir/1box-openvz-w-jupyter.raw.tar.gz" ] || \
 		    "$DATADIR/vmdir/ssh-to-kvm.sh" '[ -d ./anaconda3/lib/python3.5/site-packages/bash_kernel ]' 2>/dev/null
 	    }
@@ -91,6 +95,53 @@ pip install bash_kernel
 python -m bash_kernel.install
 EOF
 	) ; prev_cmd_failed
+
+	# Nbextensions used to be installed after tarring the basic
+	# jupyter install image.  Now it is here mainly because
+	# the nbextensions page is not showing up without restarting
+	# the server.  The VM reboot that comes after this place
+	# in ./build-nii.sh solves this.  Another reason is that
+	# installing nbextensions takes a little time, so it is nice
+	# to put it into the snapshot.  A third reason is that updates
+	# to extensions can break our system, so that makes it very nice
+	# to have working versions locked away in the snapshot.
+	(
+	    $starting_step "Install nbextensions to VM"
+	    [ -x "$DATADIR/vmdir/ssh-to-kvm.sh" ] && {
+		"$DATADIR/vmdir/ssh-to-kvm.sh" 'pip list | grep nbextensions' 2>/dev/null
+	    }
+	    $skip_step_if_already_done; set -e
+
+	    "$DATADIR/vmdir/ssh-to-kvm.sh" <<'EOF'
+
+pip install https://github.com/ipython-contrib/IPython-notebook-extensions/archive/master.zip --user
+
+EOF
+	) ; prev_cmd_failed
+
+	## Dynamically generate the steps for these:
+	enable_these="
+  usability/collapsible_headings/main
+  usability/init_cell/main
+  usability/runtools/main
+  usability/toc2/main
+"
+
+	# Note, it seems that collapsible_heading has replaced hierarchical_collapse,
+	# Therefore from the above I just removed this:  testing/hierarchical_collapse/main
+
+	cfg_path="./.jupyter/nbconfig/notebook.json"
+	for ext in $enable_these; do
+	    (
+		$starting_step "Enable extension: $ext"
+		[ -x "$DATADIR/vmdir/ssh-to-kvm.sh" ] && {
+		    "$DATADIR/vmdir/ssh-to-kvm.sh" "grep $ext $cfg_path" 2>/dev/null 1>&2
+		}
+		$skip_step_if_already_done; set -e
+
+		"$DATADIR/vmdir/ssh-to-kvm.sh" jupyter nbextension enable $ext
+	    ) ; prev_cmd_failed
+	done
 
 	(
 	    $starting_step "Set default password for jupyter, plus other easy initial setup"
@@ -207,6 +258,60 @@ EOS
 	    # https://github.com/axsh/nii-image-and-enshuu-scripts/blob/changes-for-the-2nd-class/wakame-bootstrap/wakame-vdc-install-hierarchy.sh#L486-L506
 	)
 	
+	(
+	    $starting_step "Hack Wakame-vdc to always set openvz's privvmpages to unlimited"
+	    rubysource=/opt/axsh/wakame-vdc/dcmgr/lib/dcmgr/drivers/hypervisor/linux_hypervisor/linux_container/openvz.rb
+	    "$DATADIR/vmdir/ssh-to-kvm.sh" sudo grep 'privvmpage.*unlimited' "$rubysource" 1>/dev/null 2>&1
+	    $skip_step_if_already_done
+	    (
+		cat <<EOF
+	    rubysource='$rubysource'
+EOF
+		cat <<'EOF'
+            sudo cp "$rubysource" /tmp/ # for debugging
+	    orgcode="$(sudo cat "$rubysource")"
+            # original line: sh("vzctl set %s --privvmpage %s --save",[hc.inst_id, (inst[:memory_size] * 256)])
+	    replaceme='vzctl set %s --privvmpage'
+	    while IFS= read -r ln; do
+		  if [[ "$ln" == *${replaceme}* ]]; then
+                     echo "## $ln"
+                     echo '        sh("vzctl set %s --privvmpage unlimited --save",[hc.inst_id])'
+                     cat # copy the rest unchanged
+                     break
+		  fi
+		  echo "$ln"
+	    done <<<"$orgcode" | sudo bash -c "cat >'$rubysource'"
+EOF
+	    ) | "$DATADIR/vmdir/ssh-to-kvm.sh"
+	)
+	
+	(
+	    $starting_step "Hack Wakame-vdc to always set each openvz VM's DISKSPACE to 10G:15G"
+	    rubysource=/opt/axsh/wakame-vdc/dcmgr/templates/openvz/template.conf
+	    "$DATADIR/vmdir/ssh-to-kvm.sh" sudo grep 'DISKSPACE.*10G' "$rubysource" 1>/dev/null 2>&1
+	    $skip_step_if_already_done
+	    (
+		cat <<EOF
+	    rubysource='$rubysource'
+EOF
+		cat <<'EOF'
+            sudo cp "$rubysource" /tmp/ # for debugging
+	    orgcode="$(sudo cat "$rubysource")"
+            # original line: DISKSPACE="2G:2.2G"
+	    replaceme='DISKSPACE'
+	    while IFS= read -r ln; do
+		  if [[ "$ln" == *${replaceme}* ]]; then
+                     echo "## $ln"
+                     echo 'DISKSPACE="10G:15G"'
+                     cat # copy the rest unchanged
+                     break
+		  fi
+		  echo "$ln"
+	    done <<<"$orgcode" | sudo bash -c "cat >'$rubysource'"
+EOF
+	    ) | "$DATADIR/vmdir/ssh-to-kvm.sh"
+	)
+	
 	# TODO: this guard is awkward.
 	[ -x "$DATADIR/vmdir/kvm-shutdown-via-ssh.sh" ] && \
 	    "$DATADIR/vmdir/kvm-shutdown-via-ssh.sh"
@@ -220,7 +325,7 @@ EOS
 	cd "$DATADIR/vmdir/"
 	tar czSvf 1box-openvz-w-jupyter.raw.tar.gz 1box-openvz.netfilter.x86_64.raw
     ) ; prev_cmd_failed
-)
+) ; prev_cmd_failed
 
 (
     $starting_step "Expand fresh image from snapshot of image with Jupyter installed"
@@ -233,3 +338,137 @@ EOS
 # TODO: this guard is awkward.
 [ -x "$DATADIR/vmdir/kvm-boot.sh" ] && \
     "$DATADIR/vmdir/kvm-boot.sh"
+
+(
+    $starting_step "Download Oracle Java rpm"
+    targetfile=jdk-8u73-linux-x64.rpm
+    [ -f "$DATADIR/notebooks/.downloads/$targetfile" ]
+
+    $skip_step_if_already_done; set -e
+    mkdir -p "$DATADIR/notebooks/.downloads"
+    wget --progress=dot:mega --no-check-certificate --no-cookies \
+	 --header "Cookie: oraclelicense=accept-securebackup-cookie" \
+	 http://download.oracle.com/otn-pub/java/jdk/8u73-b02/$targetfile \
+	 -O "$DATADIR/notebooks/.downloads/$targetfile"
+) ; prev_cmd_failed
+
+(
+    $starting_step "Synchronize notebooks/ to VM"
+    [ -x "$DATADIR/vmdir/ssh-to-kvm.sh" ] && {
+	"$DATADIR/vmdir/ssh-to-kvm.sh" '[ "$(ls notebooks)" != "" ]' 2>/dev/null
+    }
+    $skip_step_if_already_done; set -e
+
+    "$DATADIR/notebooks-sync.sh" tovm bin
+    "$DATADIR/notebooks-sync.sh" tovm
+) ; prev_cmd_failed
+
+(
+    $starting_step "Replace bash_kernel's kernel.py with our version"
+    # TODO: make sure this keeps working if the bash_kernel upstream code is updated
+    ## e.g., maybe check that md5 of original has not changed, or maybe use patch....
+    [ -x "$DATADIR/vmdir/ssh-to-kvm.sh" ] &&
+	"$DATADIR/vmdir/ssh-to-kvm.sh" '[ -f ./anaconda3/lib/python3.5/site-packages/bash_kernel/kernel.py.bak ]' 2>/dev/null
+    $skip_step_if_already_done; set -e
+
+    "$DATADIR/vmdir/ssh-to-kvm.sh" <<'EOF'
+
+mv ./anaconda3/lib/python3.5/site-packages/bash_kernel/kernel.py ./anaconda3/lib/python3.5/site-packages/bash_kernel/kernel.py.bak
+
+cp -al ./bin/kernel.py ./anaconda3/lib/python3.5/site-packages/bash_kernel/kernel.py
+
+EOF
+) ; prev_cmd_failed
+
+(
+    $starting_step "Setup .ssh/config and .musselrc"
+    [ -x "$DATADIR/vmdir/ssh-to-kvm.sh" ] && {
+	"$DATADIR/vmdir/ssh-to-kvm.sh" '[ -f ~/.ssh/config ]' 2>/dev/null
+    }
+    $skip_step_if_already_done; set -e
+
+	    "$DATADIR/vmdir/ssh-to-kvm.sh" <<'EOF'
+sudo chown centos:centos ~/.ssh # fix to bug in vmbuilder??
+chmod 700 ~/.ssh
+cat >~/.ssh/config <<EEE
+Host *
+  StrictHostKeyChecking no
+  TCPKeepAlive yes
+  UserKnownHostsFile /dev/null
+  ForwardAgent yes
+EEE
+
+cat >~/.musselrc <<EEE
+DCMGR_HOST=127.0.0.1
+account_id=a-shpoolxx
+EEE
+EOF
+) ; prev_cmd_failed
+
+(
+    $starting_group "Install customized machine image into OpenVZ 1box image"
+    imagefile="centos-6.6.x86_64.openvz.md.raw.tar.gz"
+    imageid="bo-centos1d64"
+    ! [ -f "$DATADIR/$imagefile" ]
+    $skip_group_if_unnecessary
+
+    (
+	$starting_step "Compute backup object parameters for customized image"
+	[ -f "$DATADIR/$imagefile.params" ]
+
+	$skip_step_if_already_done; set -e
+	"$DATADIR/vmapp-vdc-1box/gen-image-size-params.sh" \
+	    "$DATADIR/$imagefile" >"$DATADIR/$imagefile.params"
+    ) ; prev_cmd_failed
+
+    (
+	$starting_step "Install customized image"
+
+	[ -x "$DATADIR/vmdir/ssh-to-kvm.sh" ] &&
+	    "$DATADIR/vmdir/ssh-to-kvm.sh" '[ -d /var/lib/wakame-vdc/images/hide ]' 2>/dev/null
+	$skip_step_if_already_done; set -e
+
+	( cd "$DATADIR" &&
+		tar c "$imagefile" | "$DATADIR/vmdir/ssh-to-kvm.sh" tar xv
+	)
+	"$DATADIR/vmdir/ssh-to-kvm.sh" <<EOF
+set -x
+sudo mkdir -p /var/lib/wakame-vdc/images/hide
+sudo mv /var/lib/wakame-vdc/images/$imagefile /var/lib/wakame-vdc/images/hide
+sudo mv /home/centos/$imagefile /var/lib/wakame-vdc/images
+
+/opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage backupobject modify \
+   $imageid $(cat "$DATADIR/$imagefile.params")
+
+EOF
+    ) ; prev_cmd_failed
+
+    (
+	$starting_step "Removed demo2 through demo8 and minimum from launch instance"
+
+	[ -x "$DATADIR/vmdir/ssh-to-kvm.sh" ] &&
+	    "$DATADIR/vmdir/ssh-to-kvm.sh" <<'CCC' 2>/dev/null
+          r="$(mysql -u root wakame_dcmgr <<MMM
+select display_name from networks ;
+MMM
+)"
+[[ "$r" != *demo3* ]]
+CCC
+	$skip_step_if_already_done; set -e
+
+	"$DATADIR/vmdir/ssh-to-kvm.sh" <<EOF
+set -x
+        mysql -u root wakame_dcmgr <<MMM
+DELETE FROM networks WHERE display_name="demo2" ;
+DELETE FROM networks WHERE display_name="demo3" ;
+DELETE FROM networks WHERE display_name="demo4" ;
+DELETE FROM networks WHERE display_name="demo5" ;
+DELETE FROM networks WHERE display_name="demo6" ;
+DELETE FROM networks WHERE display_name="demo7" ;
+DELETE FROM networks WHERE display_name="demo8" ;
+DELETE FROM networks WHERE display_name="minimum" ;
+MMM
+
+EOF
+    ) ; prev_cmd_failed
+)
